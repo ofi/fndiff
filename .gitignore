@@ -108,4 +108,7 @@ pyvenv.cfg
 
 # tools
 *.swp
+.vscode/
 
+# OS specific
+.DS_Store
