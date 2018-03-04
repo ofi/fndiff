@@ -68,7 +68,7 @@ class FilenamesSelection:
 if __name__ == '__main__':
     td = FilenamesSelection('.', '*.py')
     print("{} evaluates to: {}".format(td, td.eval()))
-    te = FilenamesSelection('/var/log/', '.*\.bz[0-9]?', True)
+    te = FilenamesSelection('/var/log/', r'.*\.bz[0-9]?', True)
     print("{} evaluates to: {}".format(te, te.eval()))
     tf = FilenamesSelection('~/Music', 'iTunes', False)
     print("{} evaluates to: {}".format(tf, tf.eval()))
