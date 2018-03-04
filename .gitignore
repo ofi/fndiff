@@ -107,4 +107,7 @@ venv.bak/
 
 # tools
 *.swp
+.vscode/
 
+# OS specific
+.DS_Store
