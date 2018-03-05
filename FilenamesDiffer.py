@@ -14,7 +14,10 @@ class FilenamesDiffError(Exception):
         self.__args = args
     
     def __str__(self):
-        return self.__errstring
+        argstr = ""
+        if self.__args:
+            argstr = argstr.join(self.__args)
+        return "{}, arguments: {}".format(self.__errstring, argstr)
 
 
 class FilenamesDiffer:
@@ -31,13 +34,16 @@ class FilenamesDiffer:
                 "Argument to constructor is missing (was: {}).".format(err),
                 kwargs)
 
-    def diff(self):
+    def not_in_target(self):
+        """Return a list of Path objects, representing all files from source
+            directory, which are not represented in the destination directory
+            according to their pattern matches."""
         result = []
         try:
             src_dict = self.__src_selection.eval()
             dst_dict = self.__dst_selection.eval()
-            result = [ dst_dict[x] for x in src_dict.keys()
-                if not x in dst_dict]
+            result = [ src_dict[x] for x in src_dict.keys()
+                if not x in dst_dict ]
         except Exception as err:
             raise FilenamesDiffError(
                 "Invalid comparison: {}.".format(err),

@@ -9,16 +9,13 @@ import sys
 import re
 import FilenamesDiffer
 
-def write_result(list, ofile):
-    with open(ofile, 'w') as f:
-        f.writelines(list)
 
 def main(sdir, tdir, pat, rexflag, ofile):
     result = 0
     try:
         differ = FilenamesDiffer.FilenamesDiffer(srcdir=sdir,
             dstdir=tdir, pattern=pat, reflag=rexflag)
-        fnlist = differ.diff()
+        fnlist = differ.not_in_target()
         if ofile is None:
             for item in fnlist:
                 print(item)
@@ -26,7 +23,8 @@ def main(sdir, tdir, pat, rexflag, ofile):
             with open(ofile, 'w') as f:
                 f.writelines(fnlist) 
     except FilenamesDiffer.FilenamesDiffError as err:
-        result = err
+        print(err, file=sys.stderr)
+        result = 1
     return result
 
 
@@ -47,9 +45,9 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--regex', action='store_true',
         help='Set to indicate file patterns contain regular expressions '
             + '(instead of shell-style glob patterns, the default)')
-    parser.add_argument('outfile',
+    parser.add_argument('outfile', nargs='?',
         help='Output file for result (default: stdout)')
     args = parser.parse_args()
-    result = main(args.source_dir, args.target_dir, re.escape(args.pattern),
+    result = main(args.source_dir, args.target_dir, args.pattern,
         args.regex, args.outfile)
     sys.exit(result)
