@@ -28,10 +28,23 @@ class FilenamesSelection:
     """
 
     def eval(self):
-        """Return the list of plain file pathes (incl. symbolic links to such)
-            according to object's directory path and file name pattern."""
-        return [self.__path / f for f in os.listdir(self.__path)
-            if self.__regex.match(f) and Path(self.__path / f).is_file()]
+        """Return a dictionary with tuple of matching groups from pattern or
+            the whole match as key and the full path as values according to
+            receiver's directory path and file name pattern."""
+        result = {}
+        mx = lambda x: self.__regex.match(x)
+        try:
+            if self.__regex.groups > 0:
+                tx = lambda x: mx(x).groups()
+            else:
+                tx = lambda x: (mx(x).string, ) 
+            result = dict((tx(f), self.__path / f)
+                    for f in os.listdir(self.__path)
+                    if mx(f) and Path(self.__path / f).is_file())
+        except Exception as err:
+            raise FilenamesSelectionError(self.__path, self.__regex.pattern,
+                "Error evaluating regular expression: {}".format(err))
+        return result
     
     
     def __str__(self):
@@ -68,7 +81,7 @@ class FilenamesSelection:
 if __name__ == '__main__':
     td = FilenamesSelection('.', '*.py')
     print("{} evaluates to: {}".format(td, td.eval()))
-    te = FilenamesSelection('/var/log/', r'.*\.bz[0-9]?', True)
+    te = FilenamesSelection('/var/log/', r'(.*)[.]([0-9]+)*[.]bz[0-9]?$', True)
     print("{} evaluates to: {}".format(te, te.eval()))
     tf = FilenamesSelection('~/Music', 'iTunes', False)
     print("{} evaluates to: {}".format(tf, tf.eval()))
