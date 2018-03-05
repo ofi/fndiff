@@ -23,24 +23,23 @@ class FilenamesDiffer:
     def __init__(self, **kwargs):
         try:
             self.__src_selection = FilenamesSelection(
-                kwargs['srcdir'], kwargs['srcpat'], kwargs['reflag'])
+                kwargs['srcdir'], kwargs['pattern'], kwargs['reflag'])
             self.__dst_selection = FilenamesSelection(
-                kwargs['dstdir'], kwargs['dstpat'], kwargs['reflag'])
+                kwargs['dstdir'], kwargs['pattern'], kwargs['reflag'])
         except KeyError as err:
             raise FilenamesDiffError(
                 "Argument to constructor is missing (was: {}).".format(err),
                 kwargs)
 
-    def diff_it(self, common_pattern):
+    def diff(self):
         result = []
         try:
-            rx = re.compile(common_pattern)
-            # build group set from source
-            # build group set from target
-            # extract set of files in target not present in source
-            # convert to sorted list
+            src_dict = self.__src_selection.eval()
+            dst_dict = self.__dst_selection.eval()
+            result = [ dst_dict[x] for x in src_dict.keys()
+                if not x in dst_dict]
         except Exception as err:
             raise FilenamesDiffError(
-                "Invalid comparison: {}, using pattern {}.".format(err,
-                common_pattern), common_pattern)
+                "Invalid comparison: {}.".format(err),
+                [self.__src_selection, self.__dst_selection])
         return result

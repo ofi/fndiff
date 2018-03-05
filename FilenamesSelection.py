@@ -24,12 +24,12 @@ class FilenamesSelectionError(Exception):
 
 class FilenamesSelection:
     """Representation of a filename filter by pathname (no wildcards) and
-        pattern (may contain wildcards).
+        pattern (may contain wildcards and regular expression groups).
     """
 
     def eval(self):
         """Return a dictionary with tuple of matching groups from pattern or
-            the whole match as key and the full path as values according to
+            the whole match as keys and the full path as values according to
             receiver's directory path and file name pattern."""
         result = {}
         mx = lambda x: self.__regex.match(x)
