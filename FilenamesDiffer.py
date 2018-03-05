@@ -11,7 +11,7 @@ class FilenamesDiffError(Exception):
 
     def __init__(self, errString, args):
         self.__errstring = errString
-        self.__args = args
+        self.__args = str(args)
     
     def __str__(self):
         argstr = ""
@@ -29,6 +29,11 @@ class FilenamesDiffer:
                 kwargs['srcdir'], kwargs['pattern'], kwargs['reflag'])
             self.__dst_selection = FilenamesSelection(
                 kwargs['dstdir'], kwargs['pattern'], kwargs['reflag'])
+            if str(self.__src_selection) == str(self.__dst_selection):
+                raise FilenamesDiffError(
+                    "Sorry, this version can't operate in one single direcory"
+                        + " with only one pattern.",
+                    kwargs)
         except KeyError as err:
             raise FilenamesDiffError(
                 "Argument to constructor is missing (was: {}).".format(err),

@@ -112,3 +112,6 @@ pyvenv.cfg
 
 # OS specific
 .DS_Store
+
+# test files
+fndiff-result.txt
