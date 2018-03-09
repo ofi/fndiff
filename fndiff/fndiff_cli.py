@@ -1,37 +1,15 @@
 #!/usr/bin/env python3
 """
-    fndiff-shfront.py -- List unpaired files in directories acc. to basenames
+    fndiff -- List unpaired files in directories acc. to name patterns
 
+    See README.md for more information.
     See LICENSE for copyright details.
 """
-
+import argparse
 import sys
-import re
-import FilenamesDiffer
+from .fndiff import fndiff
 
-
-def main(sdir, tdir, pat, rexflag, ofile):
-    result = 0
-    try:
-        differ = FilenamesDiffer.FilenamesDiffer(srcdir=sdir,
-            dstdir=tdir, pattern=pat, reflag=rexflag)
-        fnlist = differ.not_in_target()
-        if ofile is None:
-            for item in fnlist:
-                print(item)
-        else:
-            with open(ofile, 'w') as f:
-                f.writelines([ str(item) + '\n' for item in fnlist ]) 
-    except FilenamesDiffer.FilenamesDiffError as err:
-        print(err, file=sys.stderr)
-        result = 1
-    return result
-
-
-if __name__ == '__main__':
-    import argparse
-    import sys
-
+def main():
     parser = argparse.ArgumentParser(description='Diff Filenames by Pattern')
     parser.add_argument('-s', '--source-dir', default='.',
         help='Source directory serving as reference (default: cwd)')
@@ -45,9 +23,12 @@ if __name__ == '__main__':
             + '(instead of shell-style glob patterns, the default)')
     parser.add_argument('-o', '--outfile', default=None,
         help='Output file for result (default: stdout)')
-    parser.add_argument('target_dir', nargs='?',
+    parser.add_argument('target_dir', nargs='?', default=None,
         help='Target directory with files to compare by common pattern to source')
     args = parser.parse_args()
-    result = main(args.source_dir, args.target_dir, args.pattern,
+    (result, msg) = fndiff(args.source_dir, args.target_dir, args.pattern,
         args.regex, args.outfile)
+    if result != 0:
+        print("{}: {}".format(__name__, msg), file=sys.stderr)
+        parser.print_usage(file=sys.stderr)
     sys.exit(result)
