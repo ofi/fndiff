@@ -4,6 +4,7 @@
     See LICENSE for copyright details.
 """
 from unittest import TestCase
+
 import fndiff
 
 class TestFnDiff (TestCase):

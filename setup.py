@@ -33,8 +33,8 @@ setup(name='fndiff',
     #   install_requires=[
     #       'markdown',
     #   ],
-    #   test_suite='nose.collector',
-    #   tests_require=['nose', 'nose-cover3'],
+      test_suite='nose.collector',
+      tests_require=['nose', 'nose-cover3'],
       entry_points={
           'console_scripts': ['fndiff=fndiff.fndiff_cli:main'],
       },
