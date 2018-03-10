@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-    fndiff -- List unpaired files in directories acc. to name patterns
+    fndiff_cli.py -- List unpaired files in directories acc. to name patterns
+                    Command Line interface
 
     See README.md for more information.
     See LICENSE for copyright details.
