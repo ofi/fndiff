@@ -1,1 +1,2 @@
-__all__ = ['fndiff', 'fndiffer', 'fnselection']
+__all__ = ['fndiffer', 'fnselection']
+from fndiff.fndiffer import *

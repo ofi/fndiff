@@ -1,10 +1,11 @@
 """
-    FilenamesDiffer.py -- Main class of FilenamesDiff
+    fndiff.py -- Main class and function
 
     See LICENSE for copyright details.
 """
 
 import re
+
 from .fnselection import FilenamesSelection, FilenamesSelectionError
 
 class FilenamesDiffError(Exception):
@@ -61,3 +62,13 @@ class FilenamesDiffer:
                 "Invalid comparison: {}.".format(err),
                 [self.__src_selection, self.__dst_selection])
         return result
+
+
+def filenames_diff(sdir, tdir, pat, rexflag):
+    """ Top level function to produce list of resulting file pathes as strings.
+    """
+    result = []
+    differ = FilenamesDiffer(srcdir=sdir,
+        dstdir=tdir, pattern=pat, reflag=rexflag)
+    result = differ.not_in_target()
+    return result

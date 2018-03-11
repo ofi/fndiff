@@ -8,9 +8,10 @@
 """
 import argparse
 import sys
-from .fndiff import fndiff
+from .fndiffer import filenames_diff
 
 def main():
+    exit_code = 0
     parser = argparse.ArgumentParser(description='Diff Filenames by Pattern')
     parser.add_argument('-s', '--source-dir', default='.',
         help='Source directory with files being compared by name with those '
@@ -28,10 +29,19 @@ def main():
     parser.add_argument('target_dir', nargs='?', default=None,
         help='Target directory with files serving as a reference by name to '
             + 'those in the source directory.')
-    args = parser.parse_args()
-    (result, msg) = fndiff(args.source_dir, args.target_dir, args.pattern,
-        args.regex, args.outfile)
-    if result != 0:
-        print("{}: {}".format(__name__, msg), file=sys.stderr)
+    try:
+        args = parser.parse_args()
+        result = filenames_diff(args.source_dir, args.target_dir, args.pattern,
+            args.regex)
+        if args.outfile is None:
+            for item in result:
+                print(item)
+        else:
+            with open(args.outfile, 'w') as f:
+                f.writelines([ str(item) + '\n' for item in result ]) 
+    except Exception as err:
+        print("{}: {}".format(__name__, err), file=sys.stderr)
         parser.print_usage(file=sys.stderr)
-    sys.exit(result)
+        exit_code = 1
+    finally:
+        sys.exit(exit_code)
