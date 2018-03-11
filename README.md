@@ -1,90 +1,112 @@
-# FilenamesDiff
+# fndiff
 
 ## Purpose
 
-List all files from one directory with according to selection pattern whose
-basenames are (not) present in another (or same) directory with another
-extension (or same extension if directories differ).
-
+List all files from one directory according to a selection pattern for which no
+file with the same same lexically unique characteristic trait exists in another,
+or to put it more trivial: "List all files from source directory which are
+somehow missing in the target one."
+The rest of this text explains the "somehow".
 
 ## Usage
 
-Call the shell front end from the command line with:
+From the script's help output:
 
-    fndiff [-h]
-        [(-S |--source-dir=) <source directory>] [(-s|--source-pattern=) <source pattern>]
-        (-T |--target-dir=) <target directory> [(-t|--target-pattern=) <target pattern>]
-        [-r| --regex] [<outfile>]
+                usage: fndiff [-h] [-s SOURCE_DIR] [-p PATTERN] [-r] [-o OUTFILE] [target_dir]
 
-Options are:
+                Diff Filenames by Pattern
 
-    -h -- print usage and version information
-    -S, --source-dir -- directory used as the reference for comparison,
-            the current working directory by default
-    -s, --source-pattern -- pattern of files to include, all (except those with
-            leading dot) by default
-    -T, --target-dir -- directory to be searched for counterpart files;
-            has to be different from source, if none or the same pattern given
-    -t, --target-pattern -- pattern of files from target directory to compare
-            with those from source-dir, the full filename by default
-    -r, --regex -- Patterns are given as regular expression, i. e. won't be
-            translated from shell-style glob patterns
-    <outfile> -- file the output will be written to, stdout by default
+        positional arguments:
+        target_dir            Target directory with files serving as a reference by
+                                name to those in the source directory.
+
+        optional arguments:
+        -h, --help            show this help message and exit
+        -s SOURCE_DIR, --source-dir SOURCE_DIR
+                                Source directory with files being compared by name
+                                with those from the target directory (default: cwd)
+        -p PATTERN, --pattern PATTERN
+                                Regular expression to match files from source and
+                                target sets optionally containing one or more RE
+                                groups to denominate the common part(s) of each
+                                matching pair (default is basename, i.e. all
+                                characters up to last dot)
+        -r, --regex           Set to indicate file pattern contains a regular
+                                expression (instead of shell-style glob patterns, the
+                                default)
+        -o OUTFILE, --outfile OUTFILE
+                                Output file for result (default: stdout)
+
 
 The result will be a list of pathnames of files from the target directory
 selected by target pattern, which have no specified counterparts in the source
 directory.
-A counterpart is defined as a filename with the same first group matched by
-the regular expression tranlated from the given shell-style glob pattern on the
-source and the target side (see examples to visually get the idea).
+A counterpart is defined as a filename with the same ordered groups matched by
+the given regular expression (or translated from the shell-style glob pattern)
+against each filename on the  source and the target side.
 Each resulting file is written on a single line.
-The path before each file will be printed as given by the -T parameter.
+The path before each file will be printed as given by the `SOURCE_DIR`
+parameter.
+(Because this tends to be a little mind-boggling, you should hav a look at the
+example to visually grab the idea.)
 
 Errors will be printed to stderr as reported by the operating system, e. g. for
 missing directories, insufficient access rights etc. An exit code of zero (0)
-means success, any other value an error.
-
-An empty result list is not an error!
+means success, any other value an error. An empty result list is not an error.
 
 
-## Examples
+## Example
 
 To select all raw Fujifilm image files from dir `RAF` which are missing in
 directory `JPG` and print them on stdout:
 
-        fndiff -S JPG -s 'D*.JPG' -T RAF -t '*.RAF'
+        fndiff -s RAF -p 'DSCF([0-9]{4})[.][A-Z]{3}$' -r JPG
 
-This translates the pattern `D*.JPG` into a regular expression like
-`(D.*)\.JPG` and `*.RAF` into `(.*)\.RAF)`, scans the source
-directory listing for files with names matching the first pattern and the
-target directory for those matching the second pattern. Any file from the
-second list, whose first group matching (e. g. `DSCF0719`) does not appear in
-the first list will be added to the result list.
+This interprets the pattern from `-p` as an regular expression because of `-r`,
+looks in the directories `JPG` and `RAF` for all matching files, and reports
+all those in the directory `RAF` which do not have a counterpart in the 
+directory `JPG`, e.g. a line `RAF/DSCF0345.RAF` indicates there is no file
+`JPG/DSCF0345.JPG` in the target directory.
 
-## Motivations
 
-Because loading raw images of my Fujifilm X-pro2 needs a long time on my
-MacBook Pro, and because I produce a JPEG image simultaneously in the second
+## Installation
+
+Assuming Python3 (version >= 3.4 recommmended) is installed on your system, the
+steps go:
+
+1. Clone or download the repository.
+1. `cd` into the top level directory `fndiff`
+1. Install with `pip install .` (using `sudo` where applicable)
+
+## Bugs
+
+Glob-style pattern matching only works for full filenames for the time being.
+
+## Motivation
+
+Because loading raw images of my Fujifilm X-pro2 needs a long time,
+and because I produce a JPEG image simultaneously in the second
 card slot, it's a lot faster to sort and filter pictures by their JPEGs than
 RAF-instances.
 
 After having dumped several frames I like to get rid of the costly (in terms
 of file space) RAF counterparts as well, but I have not found a tool to 
-accomplish this.
+accomplish this. Now I can pipe the example from above through `xargs` like so:
 
-Some clever zsh scripting might do it, but nowadays Python is commonly more
-available than zsh (or even bash). Instead this tool can be used by other
-scripts or programs.
+        fndiff -s RAF -p 'DSCF([0-9]{4})[.][A-Z]{3}$' -r JPG | xargs rm
 
-One can argue the solution is "over-engineered", but because the need has arisen
+Some clever shell scripting might do it as well, but nowadays Python is commonly
+more available than zsh (or even bash).
+
+One can argue the solution is "over-engineered", but because the need arose
 while preparing a Python workshop, I have decided to craft it in a somewhat
 "clean" way as a supplement to the course.
 
 
 ## Legalese
 
-Copyright 2018 Olaf Fiedler, Nuernberg, Germany
-License MIT (see LICENSE.txt)
+Copyright 2018 Olaf Fiedler, Nürnberg, Germany,
+License MIT (see LICENSE file for details)
 
 
 ## Disclaimer

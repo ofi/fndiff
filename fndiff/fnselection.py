@@ -1,5 +1,5 @@
 """
-    FilenamesSelection.py -- Main class of FilenamesDiff
+    fnselection.py -- Representation of a pattern based selection of files.
 
     See LICENSE for copyright details.
 """

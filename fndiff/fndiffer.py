@@ -1,11 +1,12 @@
 """
-    FilenamesDiffer.py -- Main class of FilenamesDiff
+    fndiff.py -- Main class and function
 
     See LICENSE for copyright details.
 """
 
 import re
-from FilenamesSelection import FilenamesSelection
+
+from .fnselection import FilenamesSelection, FilenamesSelectionError
 
 class FilenamesDiffError(Exception):
 
@@ -25,18 +26,25 @@ class FilenamesDiffer:
     
     def __init__(self, **kwargs):
         try:
-            self.__src_selection = FilenamesSelection(
-                kwargs['srcdir'], kwargs['pattern'], kwargs['reflag'])
-            self.__dst_selection = FilenamesSelection(
-                kwargs['dstdir'], kwargs['pattern'], kwargs['reflag'])
-            if str(self.__src_selection) == str(self.__dst_selection):
-                raise FilenamesDiffError(
-                    "Sorry, this version can't operate in one single direcory"
-                        + " with only one pattern.",
-                    kwargs)
+            srcdir = kwargs['srcdir']
+            dstdir = kwargs['dstdir']
+            pattern = kwargs['pattern']
+            reflag = kwargs['reflag']
         except KeyError as err:
             raise FilenamesDiffError(
                 "Argument to constructor is missing (was: {}).".format(err),
+                kwargs)
+        try:
+            self.__src_selection = FilenamesSelection(srcdir, pattern, reflag)
+            self.__dst_selection = FilenamesSelection(dstdir, pattern, reflag)
+        except FilenamesSelectionError as err:
+            raise FilenamesDiffError(
+                "Error creating file selection (was: {}).".format(err),
+                kwargs)
+        if str(self.__src_selection) == str(self.__dst_selection):
+            raise FilenamesDiffError(
+                "Sorry, this version can't operate in one single direcory"
+                    + " with only one pattern.",
                 kwargs)
 
     def not_in_target(self):
@@ -54,3 +62,13 @@ class FilenamesDiffer:
                 "Invalid comparison: {}.".format(err),
                 [self.__src_selection, self.__dst_selection])
         return result
+
+
+def filenames_diff(sdir, tdir, pat, rexflag):
+    """ Top level function to produce list of resulting file pathes as strings.
+    """
+    result = []
+    differ = FilenamesDiffer(srcdir=sdir,
+        dstdir=tdir, pattern=pat, reflag=rexflag)
+    result = differ.not_in_target()
+    return result
