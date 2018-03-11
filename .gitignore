@@ -90,6 +90,7 @@ env/
 venv/
 ENV/
 env.bak/
+man/
 venv.bak/
 pyvenv.cfg
 
